@@ -1,0 +1,25 @@
+name: Release
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get current tag
+        run: echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build
+        run: docker build . --pull -t michaelcoll/zulu-openjdk-alpine:${TAG}
+
+      - name: Push
+        run: docker push michaelcoll/zulu-openjdk-alpine:${TAG}
